@@ -17,6 +17,8 @@
 		596246D61E7B558D009508B3 /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596246D51E7B558D009508B3 /* Users.swift */; };
 		596A4C951E774F2500912CA6 /* Login.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596A4C941E774F2500912CA6 /* Login.swift */; };
 		596A4C971E77614600912CA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 596A4C961E77614600912CA6 /* GoogleService-Info.plist */; };
+		59F98A8C1E7EB9AA003C3BC0 /* default.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59F98A8B1E7EB9AA003C3BC0 /* default.jpg */; };
+		59F98A8F1E7ECFB5003C3BC0 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59F98A8E1E7ECFB5003C3BC0 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +33,8 @@
 		596246D51E7B558D009508B3 /* Users.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
 		596A4C941E774F2500912CA6 /* Login.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Login.swift; sourceTree = "<group>"; };
 		596A4C961E77614600912CA6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		59F98A8B1E7EB9AA003C3BC0 /* default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = default.jpg; path = ../../../default.jpg; sourceTree = "<group>"; };
+		59F98A8E1E7ECFB5003C3BC0 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		9BB0A7CDC7360ED77FD7A343 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 		AA382F1F88ACDD19C91085FD /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B331E8664C460D916BE9F034 /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
@@ -86,6 +90,7 @@
 		595CA25B1E774B7300A90572 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				59F98A8D1E7ECF83003C3BC0 /* Helpers */,
 				596246D41E7B557E009508B3 /* Model */,
 				596A4C931E774F0200912CA6 /* Controller */,
 				595CA25C1E774B7300A90572 /* AppDelegate.swift */,
@@ -95,6 +100,7 @@
 				595CA2651E774B7300A90572 /* LaunchScreen.storyboard */,
 				596A4C961E77614600912CA6 /* GoogleService-Info.plist */,
 				595CA2681E774B7300A90572 /* Info.plist */,
+				59F98A8B1E7EB9AA003C3BC0 /* default.jpg */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -114,6 +120,14 @@
 				596246D21E7B4C75009508B3 /* NewMessages.swift */,
 			);
 			path = Controller;
+			sourceTree = "<group>";
+		};
+		59F98A8D1E7ECF83003C3BC0 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				59F98A8E1E7ECFB5003C3BC0 /* Extensions.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -183,6 +197,7 @@
 				596A4C971E77614600912CA6 /* GoogleService-Info.plist in Resources */,
 				595CA2641E774B7300A90572 /* Assets.xcassets in Resources */,
 				595CA2621E774B7300A90572 /* Main.storyboard in Resources */,
+				59F98A8C1E7EB9AA003C3BC0 /* default.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				596A4C951E774F2500912CA6 /* Login.swift in Sources */,
+				59F98A8F1E7ECFB5003C3BC0 /* Extensions.swift in Sources */,
 				595CA25F1E774B7300A90572 /* MessagesController.swift in Sources */,
 				596246D61E7B558D009508B3 /* Users.swift in Sources */,
 				596246D31E7B4C75009508B3 /* NewMessages.swift in Sources */,

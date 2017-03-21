@@ -12,6 +12,7 @@ class Users: NSObject {
     
     var email : String!
     var name : String!
+    var photo : String!
     
     init(parameters : [String:AnyObject]) {
         super.init()

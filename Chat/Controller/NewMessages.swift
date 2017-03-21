@@ -12,16 +12,15 @@ import Firebase
 class NewMessages: UITableViewController {
 
     var users = [Users]()
-    var usersImages = ["sandy", "gregory", "renato"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
 
         tableView.register(UsersCell.self, forCellReuseIdentifier: "userCell")
         tableView.tableFooterView = UIView(frame: CGRect.zero)
-        tableView.headerView(forSection: 1)
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 10))
         tableView.backgroundColor = UIColor.white
         
         tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
@@ -59,14 +58,21 @@ class NewMessages: UITableViewController {
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         
         if   users.count > 0{
-            cell.imageView?.image = UIImage(named: usersImages[indexPath.row])
-            cell.textLabel?.text = users[indexPath.row].name
-            cell.detailTextLabel?.text = users[indexPath.row].email
+            let user = users[indexPath.row]
+            cell.textLabel?.text = user.name
+            cell.detailTextLabel?.text = user.email
+            cell.imageView?.image = UIImage(named: "default")
+
+            
+            if let userPhoto = user.photo {
+                cell.imageView?.loadImageUsingCacheWithUrlString(urlString: userPhoto)
+            }
         }
         
         return cell
     }
     
+ 
     
 }
 
@@ -106,6 +112,7 @@ class UsersCell : UITableViewCell {
        self.imageView?.layer.borderWidth = 1
        self.imageView?.layer.borderColor = UIColor(r: 232, g: 232, b: 232).cgColor
        self.imageView?.layer.cornerRadius = self.frame.height/2
+       self.imageView?.contentMode  = .scaleAspectFit
         
     }
 

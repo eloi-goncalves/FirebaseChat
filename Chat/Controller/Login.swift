@@ -9,8 +9,9 @@
 import UIKit
 import Firebase
 
-class Login: UIViewController {
+class Login: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate,UITextFieldDelegate {
     
+    var messagesController : MessagesController?
 
     var heightInputsAnchor : NSLayoutConstraint?
     var heightNameInputTextAnchor : NSLayoutConstraint?
@@ -53,6 +54,10 @@ class Login: UIViewController {
         name.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
         name.layer.shadowOpacity = 1.0
         name.layer.shadowRadius = 0.0
+        
+        name.keyboardType = UIKeyboardType.alphabet
+        name.returnKeyType = UIReturnKeyType.continue
+        
         return name
     }()
     
@@ -71,6 +76,10 @@ class Login: UIViewController {
         email.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
         email.layer.shadowOpacity = 1.0
         email.layer.shadowRadius = 0.0
+        
+        email.keyboardType = UIKeyboardType.emailAddress
+        email.returnKeyType = UIReturnKeyType.continue
+        
         return email
     }()
     
@@ -86,6 +95,9 @@ class Login: UIViewController {
         password.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
         password.layer.shadowOpacity = 1.0
         password.layer.shadowRadius = 0.0
+        
+        password.returnKeyType = UIReturnKeyType.continue
+        
         return password
     }()
     
@@ -98,6 +110,30 @@ class Login: UIViewController {
         return sc
     }()
     
+    let photoLogin : UIImageView = {
+        
+        let photo = UIImageView(image: UIImage(named: "photo"))
+        photo.sizeToFit()
+        photo.translatesAutoresizingMaskIntoConstraints = false
+
+        return photo
+    }()
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        if  textFieldName == textField {
+            textFieldName.resignFirstResponder()
+            textFieldEmailAddress.becomeFirstResponder()
+        } else if textFieldEmailAddress == textField {
+            textFieldEmailAddress.resignFirstResponder()
+            textFieldPassword.becomeFirstResponder()
+        } else if textFieldPassword == textField {
+            textFieldPassword.resignFirstResponder()
+        }
+        
+        return true
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -105,7 +141,47 @@ class Login: UIViewController {
         setupInputsView()
         setupLoginRegisterButton()
         setupLoginRegisterSegment()
+        setupPhotoLogin()
+        
+        textFieldName.delegate = self
+        textFieldPassword.delegate = self
+        textFieldEmailAddress.delegate = self
       
+    }
+    
+    func handleSelectUserPhoto(){
+        
+        let picker = UIImagePickerController()
+        picker.sourceType  = .photoLibrary
+        picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary)!
+        picker.modalPresentationStyle = .popover
+        picker.delegate = self
+        picker.allowsEditing = true
+        present(picker, animated: true, completion: nil)
+        
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        var selectedImage : UIImage!
+        
+        if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
+            selectedImage = editedImage
+        } else {
+            let originalImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+            selectedImage = originalImage
+        }
+        
+        if let chooseImage = selectedImage {
+            photoLogin.image = chooseImage
+        }
+
+        photoLogin.contentMode = .scaleToFill
+        dismiss(animated: true, completion: nil)
+        
     }
     
     func handleLoginRegisterSegmentControl(){
@@ -153,16 +229,21 @@ class Login: UIViewController {
                 let alert = UIAlertController(title: "Alert", message: error?.localizedDescription as! String?, preferredStyle: UIAlertControllerStyle.alert)
                 
                 alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.cancel, handler:nil))
-                
+                 
                 self.present(alert, animated: true, completion: nil)
                 
             } else {
+                
+                self.messagesController?.fetchUserAndSetNavBarTitle()
+                
+                self.dismiss(animated: true, completion: nil)
             }
         })
     
     }
     
     func handleRegister(){
+        
         guard let email = textFieldEmailAddress.text, let password = textFieldPassword.text,
         let name = textFieldName.text else{
             return
@@ -179,24 +260,58 @@ class Login: UIViewController {
                 return
             }
             
-            //successfully authentication
-            let dataBaseRef = FIRDatabase.database().reference(fromURL: "https://loginchatfirebase-62af3.firebaseio.com/")
+            //storage Reference to insert image
             
-            let userReference  = dataBaseRef.child("users").child(uid)
-            let values = ["name": name, "email": email]
-                          userReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
-                if  err != nil {
-                    print(err)
-                    return
-                }
-                            
-                self.dismiss(animated: true, completion: nil)
+            let imageUserName = NSUUID().uuidString
+            
+            let storageRef = FIRStorage.storage().reference().child("\(imageUserName).png")
+
+            //Compressed image in order to fast upload and download images.
+            
+            if let profileImage = self.photoLogin.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1){
+            //if let uploadData = UIImageJPEGRepresentation(self.photoLogin.image!, 0.1){
                 
-                print("Saved user successfuly into  Firebase")
-            })
+           //if let uploadData =  UIImagePNGRepresentation(self.photoLogin.image!) {
+                storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
             
+                if error != nil {
+                        print(error)
+                        return
+                }
+                    if  let userPhoto = metadata?.downloadURL()?.absoluteString {
+                        
+                        let values = ["name": name, "email": email, "photo": userPhoto]
+                        
+                        self.registerUserIntoDataBaseWithUid(uid: uid, values: values as [String : AnyObject])
+                    }
+                })
+            }
+            
+
         })
     }
+    
+    private func registerUserIntoDataBaseWithUid(uid : String, values : [String:AnyObject]){
+    
+        //successfully authentication
+        let dataBaseRef = FIRDatabase.database().reference(fromURL: "https://loginchatfirebase-62af3.firebaseio.com/")
+        
+        let userReference  = dataBaseRef.child("users").child(uid)
+
+        userReference.updateChildValues(values, withCompletionBlock: { (err, ref) in
+            if  err != nil {
+                print(err)
+                return
+            }
+            
+            self.messagesController?.fetchUserAndSetNavBarTitle()
+            
+            print("Saved user successfuly into  Firebase")
+            self.dismiss(animated: true, completion: nil)
+        })
+        
+    }
+    
     
     func setupInputsView(){
         self.view.addSubview(inputsContainer)
@@ -206,6 +321,7 @@ class Login: UIViewController {
         heightInputsAnchor  = inputsContainer.heightAnchor.constraint(equalToConstant: 150)
         
         heightInputsAnchor?.isActive = true
+        
         
         //Insert textFieldName 
         
@@ -263,6 +379,26 @@ class Login: UIViewController {
         loginRegisterSeguement.widthAnchor.constraint(equalTo: inputsContainer.widthAnchor).isActive = true
         loginRegisterSeguement.heightAnchor.constraint(equalToConstant: 30).isActive = true
     
+    }
+    
+    func setupPhotoLogin(){
+        self.view.addSubview(photoLogin)
+        photoLogin.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        photoLogin.bottomAnchor.constraint(lessThanOrEqualTo: loginRegisterSeguement.topAnchor, constant: -12).isActive = true
+        photoLogin.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 60).isActive = true
+        photoLogin.widthAnchor.constraint(equalTo: loginRegisterSeguement.widthAnchor, multiplier: 0.4).isActive = true
+        
+
+        
+        photoLogin.layer.masksToBounds = true
+        photoLogin.layer.cornerRadius = 5
+        photoLogin.layer.borderColor = UIColor.white.cgColor
+        photoLogin.layer.borderWidth = 1
+
+        
+        photoLogin.isUserInteractionEnabled = true
+        photoLogin.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectUserPhoto)))
+        
     }
 
 
